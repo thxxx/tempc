@@ -203,7 +203,6 @@ dad = {
 NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")  # 고정 namespace (직접 정해놓기)
 
 def stable_uuid(text: str) -> uuid.UUID:
-    # 필요하면 전처리(소문자화/trim 등)로 일관성 보장
     return uuid.uuid5(NAMESPACE, text)
 
 def main(index: int):
@@ -214,9 +213,7 @@ def main(index: int):
 
     total_datas = []
     for d in tqdm(targets):
-        print(d)
         data = extract_from_url(d['url'])
-        print(data)
         if not data:
             continue
         snap_id = d['url'][len('https://www.musinsa.com/snap/'):]
@@ -238,7 +235,7 @@ def main(index: int):
         }
 
         total_datas.append(data)
-        
+
         if len(total_datas) % 200 == 199:
             with open(f"data_{index}.json", "w") as f:
                 json.dump(total_datas, f, ensure_ascii=False, indent=2)
