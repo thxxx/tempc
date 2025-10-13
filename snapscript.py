@@ -140,9 +140,9 @@ def extract_from_url(url: str, gender: str, types: str, index: int, totals, buck
             count += 1
 
             if count % 20 == 19:
-                with open(f"data_{index}.json", "w") as f:
+                with open(f"second_data_{index}.json", "w") as f:
                     json.dump(totals, f)
-                upload_json_item(bucket, totals, "snap_temporary", f"data_{index}.json")
+                upload_json_item(bucket, totals, "snap_temporary", f"second_data_{index}.json")
         # driver.quit()
         return totals, total_num
     except Exception as e:
@@ -163,9 +163,9 @@ def main(index: int, supabase_url: str, supabase_key: str):
         total_count += 1
         data = supabase.table("logs").select("*").eq("status", "wait").execute()
         if len(data.data) == 0:
-            with open(f"data_{index}_done.json", "w") as f:
+            with open(f"second_data_{index}_done.json", "w") as f:
                 json.dump(totals, f)
-            upload_json_item(bucket, totals, "snap_temporary", f"data_{index}_done.json")
+            upload_json_item(bucket, totals, "snap_temporary", f"second_data_{index}_done.json")
             is_finished = True
             break
         current_url = random.choice([d['url'] for d in data.data])
@@ -180,9 +180,9 @@ def main(index: int, supabase_url: str, supabase_key: str):
         origin_num = len(totals)
         totals, total_num = extract_from_url(current_url, gender, types, index, totals, bucket)
         if total_num != 0:
-            with open(f"data_{index}.json", "w") as f:
+            with open(f"second_data_{index}.json", "w") as f:
                 json.dump(totals, f)
-            upload_json_item(bucket, totals, "snap_temporary", f"data_{index}.json")
+            upload_json_item(bucket, totals, "snap_temporary", f"second_data_{index}.json")
         supabase.table("logs").update({"status": "done", "total_num": total_num, "get_num": len(totals) - origin_num}).eq("url", current_url).execute()
         time.sleep(1)
 
