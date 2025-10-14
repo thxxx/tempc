@@ -25,6 +25,19 @@ import json
 import io
 import mimetypes
 
+from google.cloud import storage
+
+os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", "./first-project-438808-dc1804307b11.json")
+
+
+def download_from_gcs(bucket_name: str, source_blob_name: str, destination_file: str):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file)
+
+    print(f"✅ Downloaded gs://{bucket_name}/{source_blob_name} → {destination_file}")
+
 def _guess_ext(url: str, content_type: str | None) -> str:
     # URL에서 확장자 추정 → 없으면 content-type으로 → 최종 기본은 .jpg
     ext = os.path.splitext(url.split("?")[0])[1].lower()
@@ -56,7 +69,6 @@ def upload_images_for_snap(bucket, folder1: str, folder2: str, snap_id: str, img
             print(f"[IMG-FAIL] {url} -> gs://{bucket.name}/{gcs_path}*  ({e})")
 
 
-os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", "./first-project-438808-dc1804307b11.json")
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -208,10 +220,18 @@ def stable_uuid(text: str) -> uuid.UUID:
 def main(index: int):
     with open("urls.json", "r") as f:
         datas = json.load(f)
-    targets = datas[index * 5000:(index + 1) * 5000]
     bucket = gcs_bucket()
 
-    total_datas = []
+    # 사용 예시
+    download_from_gcs(
+        bucket_name="vton-mss-snap",
+        source_blob_name=f"jsons/snaps/all/data_{index}.json",
+        destination_file="./prev_datas.json"
+    )
+    prev_datas = json.load(open("./prev_datas.json", "r"))
+
+    targets = datas[index * 5000 + len(prev_datas) : (index + 1) * 5000]
+    total_datas = prev_datas
     for d in tqdm(targets):
         data = extract_from_url(d['url'])
         if not data:
