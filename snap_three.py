@@ -33,14 +33,6 @@ HEADERS = {
 
 NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")  # stable uuid namespace
 
-DAD = {  # snap type -> folder1
-    'USER_SNAP': "member",
-    'CODISHOP_SNAP': "mss",
-    "BRAND_SNAP": "brand",
-}
-
-DEFAULT_FOLDER1 = "snaps"  # 타입을 못 찾을 때 기본
-
 # ---------- GCS ----------
 def gcs_bucket(name: str = "vton-mss-snap"):
     return storage.Client().bucket(name)
@@ -322,14 +314,14 @@ def scrape_page(driver, page_url: str) -> List[Dict[str, Any]]:
 
     for round_idx in range(MAX_ROUNDS):
         # 스크롤해서 더 불러오기
-        infinite_scroll_collect(driver, max_scrolls=3, sleep_sec=3.2)
+        infinite_scroll_collect(driver, max_scrolls=3, sleep_sec=3)
 
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
         # data-key를 가진 최상위 카드 컨테이너 수집
         # 사이트 구조에 맞춰 'data-key'를 가진 div를 폭넓게 선택
-        card_divs = soup.find_all("div", {"class": "sc-7659943b-0"})
+        card_divs = soup.select("div[class*='sc-7659943b-0']")
 
         new_cnt = 0
         for div in card_divs:
