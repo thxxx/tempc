@@ -318,11 +318,11 @@ def scrape_page(driver, page_url: str) -> List[Dict[str, Any]]:
 
     all_items: Dict[str, Dict[str, Any]] = {}
     no_new_rounds = 0
-    MAX_ROUNDS = 2
+    MAX_ROUNDS = 10
 
     for round_idx in range(MAX_ROUNDS):
         # 스크롤해서 더 불러오기
-        infinite_scroll_collect(driver, max_scrolls=2, sleep_sec=3)
+        infinite_scroll_collect(driver, max_scrolls=3, sleep_sec=3.2)
 
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
