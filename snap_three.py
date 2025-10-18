@@ -424,7 +424,7 @@ def main(index: int, supabase_url: str, supabase_key: str):
                     if len(total_datas) % 200 == 0:
                         with open(f"data_{index}.json", "w") as f:
                             json.dump(total_datas, f, ensure_ascii=False, indent=2)
-                        upload_json_item(bucket, total_datas, "snaps", "additional", f"data_{index}.json")
+                        upload_json_item(bucket, total_datas, "snaps", "additional_refined", f"data_{index}.json")
 
                         # done_ids도 같이 저장(로컬만)
                         with open("./check_done_ids.json", "w") as f:
