@@ -170,7 +170,7 @@ def parse_item_div(div) -> Optional[Dict[str, Any]]:
         return None
 
     # 타입 추론 (없으면 USER_SNAP 가정)
-    if div.find("div", {"class": "sc-552dd808-0"}):
+    if div.select_one("div[class*='sc-552dd808-0']"):
         snap_type = "brand"
     else:
         snap_type = "member"
@@ -181,13 +181,13 @@ def parse_item_div(div) -> Optional[Dict[str, Any]]:
         one_item = div
 
         # 계정명
-        user_el = one_item.select_one("div.sc-faa3da62-0") or select_one_or(one_item, "a[href*='profile'],div[class*='nickname']")
+        user_el = one_item.select_one("div[class*='sc-faa3da62-0']") or select_one_or(one_item, "a[href*='profile'],div[class*='nickname']")
         user_name = get_text_safe(user_el)
         if user_name == "무신사 코디":
             snap_type = 'mss'
 
         # 모델 텍스트 (ex: "170/65 · 웜톤")
-        meta_el = one_item.select_one("span.sc-7659943b-1") or select_one_or(one_item, "div[class*='model'] span, span[class*='model']")
+        meta_el = one_item.select_one("span[class*='sc-7659943b-1']") or select_one_or(one_item, "div[class*='model'] span, span[class*='model']")
         mtext = get_text_safe(meta_el)
         tone = ""
         height = ""
@@ -203,16 +203,16 @@ def parse_item_div(div) -> Optional[Dict[str, Any]]:
                 tone = parts[-1].strip()
 
         # 좋아요 수
-        like_el = one_item.select_one("span.sc-7659943b-3") or select_one_or(one_item, "span[class*='like']")
+        like_el = one_item.select_one("span[class*='sc-7659943b-3']") or select_one_or(one_item, "span[class*='like']")
         like_text = get_text_safe(like_el)
         like_num = int(re.sub(r'[^0-9]', '', like_text) or "0")
 
         # 설명 텍스트
-        desc_el = one_item.select_one("div.sc-7659943b-5") or select_one_or(one_item, "div[class*='desc'], p[class*='desc']")
+        desc_el = one_item.select_one("div[class*='sc-7659943b-5']") or select_one_or(one_item, "div[class*='desc'], p[class*='desc']")
         text = get_text_safe(desc_el)
 
         # 이미지 (슬라이드)
-        slide_divs = one_item.select("div.sc-8c7680f3-1") or one_item.select("div[class*='slide']")
+        slide_divs = one_item.select("div[class*='sc-8c7680f3-1']") or one_item.select("div[class*='slide']")
         images = []
         if slide_divs:
             for s in slide_divs:
@@ -231,7 +231,7 @@ def parse_item_div(div) -> Optional[Dict[str, Any]]:
 
         # 상품들
         products = []
-        product_items = div.find("div", {"class": "sc-316ed15c-1"})
+        product_items = div.find("div", class_=re.compile("sc-316ed15c-1"))
         if product_items:
             product_items = product_items.find_all("div", attrs={"data-item-brand": True})
             seen = set()
@@ -353,7 +353,7 @@ def main(index: int, supabase_url: str, supabase_key: str):
     try:
         download_from_gcs(
             bucket_name=bucket.name,
-            source_blob_name=f"files/snap_ids_436746.json",
+            source_blob_name=f"files/snap_ids_519200.json",
             destination_file=local_done_path
         )
     except Exception as e:
@@ -361,10 +361,12 @@ def main(index: int, supabase_url: str, supabase_key: str):
 
     done_ids_list = json.load(open(local_done_path, "r"))
     done_ids: Set[str] = set(map(str, done_ids_list))
+    print(f"done_ids : {len(done_ids)}")
 
     target_feed_urls = [
         f"https://www.musinsa.com/snap/{u}" for u in list(done_ids)[index*5000:(index+1)*5000]
     ]
+    print(f"target_feed_urls : {len(target_feed_urls)}")
 
     check_done_ids = set()
 
@@ -394,6 +396,8 @@ def main(index: int, supabase_url: str, supabase_key: str):
                 if supa_has_url(supabase, snap_url):
                     check_done_ids.add(snap_id)
                     continue
+                    
+                print(f"Item : {item}")
 
                 try:
                     upload_json_item(bucket, item, folder1, folder2, f"{snap_id}.json")
