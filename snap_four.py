@@ -345,11 +345,11 @@ def main(index: int, supabase_url: str, supabase_key: str):
     supabase = create_client(supabase_url, supabase_key)
     bucket = gcs_bucket()
 
-    local_done_path = "./no_account_names.json"
+    local_done_path = "./nos_ramains.json"
     try:
         download_from_gcs(
             bucket_name=bucket.name,
-            source_blob_name=f"files/no_account_names.json",
+            source_blob_name=f"files/nos_ramains.json",
             destination_file=local_done_path
         )
     except Exception as e:
@@ -360,7 +360,7 @@ def main(index: int, supabase_url: str, supabase_key: str):
     for p in no_products_list:
         total_products_json[p["snap_id"]] = p
 
-    target_snaps = no_products_list[index*10000:(index+1)*10000]
+    target_snaps = no_products_list[index*5000:(index+1)*5000]
     print(f"target_snaps : {len(target_snaps)}")
 
     check_done_ids = set()
@@ -412,9 +412,9 @@ def main(index: int, supabase_url: str, supabase_key: str):
                         roll_count += 1
 
                     if len(total_datas) % 500 == 0:
-                        with open(f"data_{index}.json", "w") as f:
+                        with open(f"data_added_{index}.json", "w") as f:
                             json.dump(total_datas, f, ensure_ascii=False, indent=2)
-                        upload_json_item(bucket, total_datas, "snaps", "additional_tuned", f"data_{index}.json")
+                        upload_json_item(bucket, total_datas, "snaps", "additional_tuned", f"data_added_{index}.json")
 
                 except Exception as e:
                     print(f"[SAVE-ERR] snap_id={snap_id} : {e}")
@@ -427,9 +427,9 @@ def main(index: int, supabase_url: str, supabase_key: str):
             pass
 
     print(f"[DONE] total_datas : {len(total_datas)}")
-    with open(f"data_{index}_done.json", "w") as f:
+    with open(f"data_added_{index}_done.json", "w") as f:
         json.dump(total_datas, f, ensure_ascii=False, indent=2)
-    upload_json_item(bucket, total_datas, "snaps", "additional_tuned", f"data_{index}_done.json")
+    upload_json_item(bucket, total_datas, "snaps", "additional_tuned", f"data_added_{index}_done.json")
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Musinsa snap infinite scroll scraper with GCS & Supabase.")
