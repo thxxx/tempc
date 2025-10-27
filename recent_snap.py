@@ -299,7 +299,7 @@ def crawl_snaps(crawl_snaps_list):
         item = parse_item_div(card_divs[0])
         if not item:
             continue
-        print(f"\n[{i}th] - Item == ", item, "\n\n")
+        # print(f"\n[{i}th] - Item == ", item, "\n\n")
         all_items.append(item)
         i += 1
     
@@ -350,18 +350,17 @@ def main():
         soup = BeautifulSoup(html, "html.parser")
 
         snap_divs = soup.select("a[class*='SnapFeedCard__Link']")
-        print(len(snap_divs))
 
         new_snap_ids = set([c.get("href").split("/")[-1] for c in snap_divs])
         new_ids_set.update(new_snap_ids)
-        print("Set : ", len(new_ids_set))
+        # print("Set : ", len(new_ids_set))
 
         if len(new_ids_set) - 50 > last_set_length:
-            print("**", len(new_ids_set), last_set_length)
+            # print("**", len(new_ids_set), last_set_length)
             # 여기서 크롤링 한번
             crawl_snaps_list = list(new_ids_set)[last_set_length:]
             products = crawl_snaps(crawl_snaps_list)
-            print(f"\n\nDone! : {len(products)}\n\n")
+            # print(f"\n\nDone! : {len(products)}\n\n")
             
             # 그리고 ids 저장, 업로드
             with open(local_snapid_path, "w") as f:
