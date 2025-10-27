@@ -237,7 +237,7 @@ def _guess_ext(url: str, content_type: Optional[str]) -> str:
 
 def upload_json_item(bucket, data, folder1: str, folder2: str, filename: str):
     if folder2 == "":
-        path = f"json/{folder1}/{filename}"
+        path = f"{folder1}/{filename}"
     else:
         path = f"json/{folder1}/{folder2}/{filename}"
     blob = bucket.blob(path)
